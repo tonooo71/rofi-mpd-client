@@ -7,6 +7,7 @@ Simple MPD client powered by Rofi & Python 3
   * Python 3
   * python-musicpd (MPD client for Python 3)
   * Rofi
+  * (Icon Font)
 
 ## Features
 
@@ -20,5 +21,5 @@ Simple MPD client powered by Rofi & Python 3
 ![Screenshot0](./screenshot0.jpg)
   
 ![Screenshot1](./screenshot1.jpg)
-
+  
 ![Screenshot2](./screenshot2.jpg)

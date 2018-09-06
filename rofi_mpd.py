@@ -33,7 +33,7 @@ class rofi_options:
             self.set_mesg()
         self.options[2] = str(self.sel_row)
         self.options[4] = self.mesg
-        if self.client.playlistinfo():
+        if self.client.playlistinfo() and self.client.status()['state'] != 'stop':
             add = '  ['+str(int(self.client.status()['song'])+1)+'/'+self.client.status()['playlistlength']+']'
             self.options[4] += add
         self.options[8] = '~/Music/' + self.top_dir

@@ -9,7 +9,7 @@ import musicpd
 rofi_appearance = [
     '-font',    'Monospace Bold 12',
     '-width',   '60',
-    '-padding', '40',
+    '-padding', '10',
     '-lines',   '8',
     '-columns', '2'
 ]
@@ -21,8 +21,8 @@ class rofi_options:
         self.top_dir = ''
         self.sel_row = 1
         self.mesg = ''
-        self.options = ['rofi', '-selected-row', '0',
-                        '-mesg', '', '-i', '-dmenu', '-p', '~/Music/']+rofi_appearance
+        self.options = ['rofi', '-selected-row', '1', '-mesg', '',
+                        '-i', '-dmenu', '-p', '~/Music/']+rofi_appearance
 
     def gen_options(self, top_dir):
         self.top_dir = top_dir
@@ -33,9 +33,13 @@ class rofi_options:
             self.set_mesg()
         self.options[2] = str(self.sel_row)
         self.options[4] = self.mesg
-        if self.client.playlistinfo() and self.client.status()['state'] != 'stop':
-            add = '  ['+str(int(self.client.status()['song'])+1)+'/'+self.client.status()['playlistlength']+']'
-            self.options[4] += add
+        if self.client.playlistinfo():
+            if self.client.status()['state'] != 'stop':
+                add = '  ['+str(int(self.client.status()['song'])+1)+'/'+self.client.status()['playlistlength']+']'
+                self.options[4] += add
+            else:
+                add = '  [Playlist: '+self.client.status()['playlistlength']+']'
+                self.options[4] += add
         self.options[8] = '~/Music/' + self.top_dir
 
     def set_row(self):

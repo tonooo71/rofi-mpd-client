@@ -35,11 +35,12 @@ class rofi_options:
         self.options[4] = self.mesg
         if self.client.playlistinfo():
             if self.client.status()['state'] != 'stop':
-                add = '  ['+str(int(self.client.status()['song'])+1)+'/'+self.client.status()['playlistlength']+']'
-                self.options[4] += add
+                pos = int(self.client.status()['song'])+1
+                end = self.client.status()['playlistlength']
+                self.options[4] += f'  [{pos}/{end}]'
             else:
-                add = '  [Playlist: '+self.client.status()['playlistlength']+']'
-                self.options[4] += add
+                end = self.client.status()['playlistlength']
+                self.options[4] += f'  [Playlist: {end}]'
         self.options[8] = '~/Music/' + self.top_dir
 
     def set_row(self):
@@ -90,12 +91,12 @@ class rofi_index:
         count = 1
         for i in indexes_dic:
             if 'directory' in i:
-                self.indexes += '   ' + i['directory'].split('/')[-1] + '\n'
+                self.indexes += f'   {i["directory"].split("/")[-1]}\n'
             elif 'title' in i:
-                self.indexes += '   ' + str(count) + '. ' + i['title'] + '\n'
+                self.indexes += f'   {count}. {i["title"]}\n'
                 count += 1
             elif 'file' in i:
-                self.indexes += '   ' + str(count) + '. ' + i['file'].split('/')[-1] + '\n'
+                self.indexes += f'   {count}. {i["file"].split("/")[-1]}\n'
                 count += 1
 
 
@@ -136,7 +137,7 @@ def main():
                 pass
             else:
                 if current_dir:
-                    current_dir += '/' +tmp[4:]
+                    current_dir += '/' + tmp[4:]
                 else:
                     current_dir = tmp[4:]
 

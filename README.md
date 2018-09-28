@@ -4,7 +4,7 @@ Simple MPD client powered by Rofi & Python 3
 
 ## Requirements
 
-  * Python 3
+  * Python 3.6 ~
   * python-musicpd (MPD client for Python 3)
   * Rofi
   * (Icon Font)

@@ -116,7 +116,7 @@ class rofi_playlist:
             self.prefix = ' Go back to Main menu\n'
         else:
             self.prefix = ' Go Back\n'
-            self.prefix += ' Play this playlist\n'
+            self.prefix += ' Add this playlist\n'
 
     def set_indexes(self):
         if not self.playlist:
@@ -129,15 +129,15 @@ class rofi_playlist:
             except:
                 pass
             self.indexes += 'Playlist------------------\n'
-            for i in self.client.playlistinfo():
-                if current_song == i["title"]:
-                    self.indexes += f'   {i["title"]} - {i["artist"]}\n'
+            for i, j in enumerate(self.client.playlistinfo()):
+                if current_song == j["title"]:
+                    self.indexes += f'   {j["title"]} - {j["artist"]}\n'
                 else:
-                    self.indexes += f'  {i["title"]} - {i["artist"]}\n'
+                    self.indexes += f' {i+1}  {j["title"]} - {j["artist"]}\n'
         else:
             self.indexes = f'Playlist: {self.playlist}\n'
-            for i in self.client.listplaylistinfo(self.playlist):
-                self.indexes += f'  {i["title"]}\n'
+            for i, j in enumerate(self.client.listplaylistinfo(self.playlist)):
+                self.indexes += f' {i+1}  {j["title"]}\n'
 
 
 def main():
@@ -183,8 +183,8 @@ def main():
                             break
                         elif tmp == ' Go Back':
                             playlist.playlist = ''
-                        elif tmp == ' Play this playlist':
-                            pass
+                        elif tmp == ' Add this playlist':
+                            client.load(playlist.playlist)
                         elif '' in tmp:
                             playlist.playlist = tmp.split()[-1]
                         else:

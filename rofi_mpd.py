@@ -72,7 +72,9 @@ class rofi_index:
     def gen_index(self, top_dir):
         self.top_dir = top_dir
         if self.client.status()['state'] == 'play':
-            self.prefix = ' Pause\n Next\n'
+            self.prefix = ' Pause\n'
+            if not top_dir:
+                self.prefix += ' Next\n'
         else:
             self.prefix = ' Play\n'
         self.indexes = ''

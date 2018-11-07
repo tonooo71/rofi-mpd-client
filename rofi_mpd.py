@@ -156,10 +156,8 @@ def main():
             break
         else:
             if tmp == ' Go Back':
-                print(current_dir)
                 if '/' in current_dir:
                     current_dir = current_dir[:current_dir.rfind('/')]
-                    print(current_dir)
                 else:
                     current_dir = ''
             elif tmp == ' Add all':

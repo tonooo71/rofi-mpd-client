@@ -16,10 +16,14 @@ Simple MPD client powered by Rofi & Python 3
   * Edit playlist(add songs and clear)
   * Simple filer using Rofi
 
+## Known Bug
+
+  * When '&' is in a song's information(title, artist), its title don't be displayed.
+
 ## Screenshots
 
-![Screenshot0](./screenshot0.jpg)
+![Top menu](./screenshot/Screenshot_1.jpg)
   
-![Screenshot1](./screenshot1.jpg)
+![Folder](./screenshot/Screenshot_2.jpg)
   
-![Screenshot2](./screenshot2.jpg)
+![Playlist mode](./screenshot/Screenshot_3.jpg)

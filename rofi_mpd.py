@@ -24,11 +24,11 @@ class rofi_options:
         self.options = ['rofi', '-selected-row', '1', '-mesg', '',
                         '-i', '-dmenu', '-p', '~/Music/']+rofi_appearance
 
-    def gen_options(self, top_dir):
+    def gen_options(self, top_dir=''):
         self.top_dir = top_dir
-        self.sel_row = 1
+        self.sel_row = 2
         self.mesg = ''
-        self.set_row()
+        # self.set_row()
         if self.client.status()['state'] != 'stop' and self.client.playlistinfo():
             self.set_mesg()
         self.options[2] = str(self.sel_row)
@@ -72,7 +72,7 @@ class rofi_index:
     def gen_index(self, top_dir):
         self.top_dir = top_dir
         if self.client.status()['state'] == 'play':
-            self.prefix = ' Pause\n'
+            self.prefix = ' Pause\n Next\n'
         else:
             self.prefix = ' Play\n'
         self.indexes = ''
@@ -84,7 +84,7 @@ class rofi_index:
             self.prefix += ' Go Back\n'
             self.prefix += ' Add all\n'
         else:
-            self.prefix = ' Clear Playlist\n' + self.prefix
+            self.prefix = ' Playlist mode\n Clear Playlist\n' + self.prefix
 
     def set_indexes(self):
         indexes_dic = self.client.lsinfo(self.top_dir)
@@ -98,6 +98,46 @@ class rofi_index:
             elif 'file' in i:
                 self.indexes += f'   {count}. {i["file"].split("/")[-1]}\n'
                 count += 1
+
+
+class rofi_playlist:
+    def __init__(self, client):
+        self.client = client
+        self.prefix = ''  # for back index, delete mode, pause, back
+        self.indexes = ''  # playlist
+        self.playlist = ''  # None: default, Title: detail
+
+    def gen_index(self):
+        self.set_prefix()
+        self.set_indexes()
+
+    def set_prefix(self):
+        if not self.playlist:
+            self.prefix = ' Go back to Main menu\n'
+        else:
+            self.prefix = ' Go Back\n'
+            self.prefix += ' Play this playlist\n'
+
+    def set_indexes(self):
+        if not self.playlist:
+            self.indexes = 'Stored playlists----------\n'
+            for i in self.client.listplaylists():
+                self.indexes += f'  {i["playlist"]}\n'
+            current_song = 'RSKNG'  # tmp
+            try:
+                current_song = self.client.currentsong()["title"]
+            except:
+                pass
+            self.indexes += 'Playlist------------------\n'
+            for i in self.client.playlistinfo():
+                if current_song == i["title"]:
+                    self.indexes += f'   {i["title"]} - {i["artist"]}\n'
+                else:
+                    self.indexes += f'  {i["title"]} - {i["artist"]}\n'
+        else:
+            self.indexes = f'Playlist: {self.playlist}\n'
+            for i in self.client.listplaylistinfo(self.playlist):
+                self.indexes += f'  {i["title"]}\n'
 
 
 def main():
@@ -115,25 +155,52 @@ def main():
         if not tmp:
             break
         else:
-            if ' Go Back' == tmp:
+            if tmp == ' Go Back':
                 print(current_dir)
                 if '/' in current_dir:
                     current_dir = current_dir[:current_dir.rfind('/')]
                     print(current_dir)
                 else:
                     current_dir = ''
-            elif ' Add all' == tmp:
+            elif tmp == ' Add all':
                 client.add(current_dir)
-            elif ' Clear Playlist' == tmp:
+            # Go to Playlist mode
+            elif tmp == ' Playlist mode':
+                playlist = rofi_playlist(client)
+                while 1:
+                    option.gen_options()
+                    option.options[8] = f'[Playlist mode]{playlist.playlist}'
+                    if playlist.playlist:
+                        option.options[2] = '1'
+                    rofi = subprocess.Popen(option.options, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
+                    playlist.gen_index()
+                    select = playlist.prefix + playlist.indexes
+                    tmp = rofi.communicate(select.encode())[0].decode().rstrip()
+                    if not tmp:
+                        sys.exit()
+                    else:
+                        if tmp == ' Go back to Main menu':
+                            break
+                        elif tmp == ' Go Back':
+                            playlist.playlist = ''
+                        elif tmp == ' Play this playlist':
+                            pass
+                        elif '' in tmp:
+                            playlist.playlist = tmp.split()[-1]
+                        else:
+                            pass
+            elif tmp == ' Clear Playlist':
                 client.clear()
-            elif ' Play' == tmp:
+            elif tmp == ' Play':
                 if not client.playlistinfo():
                     pass
                 else:
                     client.play()
-            elif ' Pause' == tmp:
+            elif tmp == ' Pause':
                 client.pause()
-            elif '' in tmp:
+            elif tmp == ' Next':
+                client.next()
+            elif '' in tmp:  # TODO: add functions
                 pass
             else:
                 if current_dir:

@@ -133,13 +133,13 @@ class rofi_playlist:
             self.indexes += 'Playlist------------------\n'
             for i, j in enumerate(self.client.playlistinfo()):
                 if current_song == j["title"]:
-                    self.indexes += f'   {j["title"]} - {j["artist"]}\n'
+                    self.indexes += f'  {j["title"]} - {j["artist"]}\n'
                 else:
-                    self.indexes += f' {i+1}  {j["title"]} - {j["artist"]}\n'
+                    self.indexes += f' {i+1} {j["title"]} - {j["artist"]}\n'
         else:
             self.indexes = f'Playlist: {self.playlist}\n'
             for i, j in enumerate(self.client.listplaylistinfo(self.playlist)):
-                self.indexes += f' {i+1}  {j["title"]}\n'
+                self.indexes += f' {i+1} {j["title"]}\n'
 
 
 def main():

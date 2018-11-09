@@ -18,7 +18,7 @@ Simple MPD client powered by Rofi & Python 3
 
 ## Known Bug
 
-  * When '&' is in a song's information(title, artist), its title don't be displayed.
+  * When '&' is in a song's information(title, artist), its title doesn't be displayed.
 
 ## Screenshots
 

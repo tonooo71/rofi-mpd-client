@@ -18,20 +18,15 @@ rofi_appearance = [
 class rofi_options:
     def __init__(self, client):
         self.client = client
-        self.top_dir = ''
-        self.sel_row = 1
         self.mesg = ''
         self.options = ['rofi', '-selected-row', '1', '-mesg', '',
                         '-i', '-dmenu', '-p', '~/Music/']+rofi_appearance
 
-    def gen_options(self, top_dir=''):
-        self.top_dir = top_dir
-        self.sel_row = 2
+    def gen_options(self, top_dir='', row_place=2):
         self.mesg = ''
-        # self.set_row()
         if self.client.status()['state'] != 'stop' and self.client.playlistinfo():
             self.set_mesg()
-        self.options[2] = str(self.sel_row)
+        self.options[2] = str(row_place)
         self.options[4] = self.mesg
         if self.client.playlistinfo():
             if self.client.status()['state'] != 'stop':
@@ -41,11 +36,7 @@ class rofi_options:
             else:
                 end = self.client.status()['playlistlength']
                 self.options[4] += f'  [Playlist: {end}]'
-        self.options[8] = '~/Music/' + self.top_dir
-
-    def set_row(self):
-        if self.top_dir:
-            self.sel_row += 1
+        self.options[8] = f'~/Music/{top_dir}'
 
     def set_mesg(self):
         song_dic = self.client.currentsong()
@@ -54,10 +45,9 @@ class rofi_options:
         elif self.client.status()['state'] == 'pause':
             self.mesg += '  '
         try:
-            album = song_dic['album']
             song = song_dic['title']
             artist = song_dic['artist']
-            self.mesg += song+' ('+album+'/'+artist+')'
+            self.mesg += f'{song} - {artist}'
         except:
             self.mesg += song_dic['file'].split('/')[-1]
 
@@ -148,34 +138,43 @@ def main():
     option = rofi_options(client)
     index = rofi_index(client)
     current_dir = ''
+    status = 2  # select row place
     while 1:
-        option.gen_options(current_dir)
+        option.gen_options(current_dir, status)
         rofi = subprocess.Popen(option.options, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         index.gen_index(current_dir)
         select = index.prefix + index.indexes
         tmp = rofi.communicate(select.encode())[0].decode().rstrip()
+        status = 2
         if not tmp:
             break
         else:
             if tmp == ' Go Back':
                 if '/' in current_dir:
                     current_dir = current_dir[:current_dir.rfind('/')]
+                    status = 1
                 else:
                     current_dir = ''
             elif tmp == ' Add all':
                 client.add(current_dir)
-            # Go to Playlist mode
+                if '/' in current_dir:
+                    current_dir = current_dir[:current_dir.rfind('/')]
+                    status = 1
+                else:
+                    current_dir = ''
+           # Go to Playlist mode
             elif tmp == ' Playlist mode':
                 playlist = rofi_playlist(client)
                 while 1:
-                    option.gen_options()
-                    option.options[8] = f'[Playlist mode]{playlist.playlist}'
                     if playlist.playlist:
-                        option.options[2] = '1'
+                        status = 1
+                    option.gen_options(row_place=status)
+                    option.options[8] = f'[Playlist mode]{playlist.playlist}'
                     rofi = subprocess.Popen(option.options, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
                     playlist.gen_index()
                     select = playlist.prefix + playlist.indexes
                     tmp = rofi.communicate(select.encode())[0].decode().rstrip()
+                    status = 2
                     if not tmp:
                         sys.exit()
                     else:
@@ -185,6 +184,8 @@ def main():
                             playlist.playlist = ''
                         elif tmp == ' Add this playlist':
                             client.load(playlist.playlist)
+                            playlist.playlist = ''
+                            status = 0
                         elif '' in tmp:
                             playlist.playlist = tmp.split()[-1]
                         else:

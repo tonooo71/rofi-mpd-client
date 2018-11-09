@@ -179,6 +179,7 @@ def main():
                         sys.exit()
                     else:
                         if tmp == ' Go Back to Main menu':
+                            status = 1
                             break
                         elif tmp == ' Clear Playlist':
                             client.clear()

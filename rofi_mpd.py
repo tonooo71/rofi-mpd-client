@@ -76,7 +76,7 @@ class rofi_index:
             self.prefix += ' Go Back\n'
             self.prefix += ' Add all\n'
         else:
-            self.prefix = ' Playlist mode\n Clear Playlist\n' + self.prefix
+            self.prefix = ' Playlist mode\n' + self.prefix
 
     def set_indexes(self):
         indexes_dic = self.client.lsinfo(self.top_dir)
@@ -106,6 +106,7 @@ class rofi_playlist:
     def set_prefix(self):
         if not self.playlist:
             self.prefix = ' Go Back to Main menu\n'
+            self.prefix += ' Clear Playlist\n'
         else:
             self.prefix = ' Go Back\n'
             self.prefix += ' Add this playlist\n'
@@ -138,33 +139,32 @@ def main():
     option = rofi_options(client)
     index = rofi_index(client)
     current_dir = ''
-    status = 2  # select row place
+    status =  1 # select row place
     while 1:
         option.gen_options(current_dir, status)
         rofi = subprocess.Popen(option.options, stdout=subprocess.PIPE, stdin=subprocess.PIPE)
         index.gen_index(current_dir)
         select = index.prefix + index.indexes
         tmp = rofi.communicate(select.encode())[0].decode().rstrip()
-        status = 2
+        status = 1
         if not tmp:
             break
         else:
             if tmp == ' Go Back':
                 if '/' in current_dir:
                     current_dir = current_dir[:current_dir.rfind('/')]
-                    status = 1
                 else:
                     current_dir = ''
             elif tmp == ' Add all':
                 client.add(current_dir)
                 if '/' in current_dir:
                     current_dir = current_dir[:current_dir.rfind('/')]
-                    status = 1
                 else:
                     current_dir = ''
            # Go to Playlist mode
             elif tmp == ' Playlist mode':
                 playlist = rofi_playlist(client)
+                status = 3
                 while 1:
                     if playlist.playlist:
                         status = 1
@@ -174,12 +174,14 @@ def main():
                     playlist.gen_index()
                     select = playlist.prefix + playlist.indexes
                     tmp = rofi.communicate(select.encode())[0].decode().rstrip()
-                    status = 2
+                    status = 3
                     if not tmp:
                         sys.exit()
                     else:
                         if tmp == ' Go Back to Main menu':
                             break
+                        elif tmp == ' Clear Playlist':
+                            client.clear()
                         elif tmp == ' Go Back':
                             playlist.playlist = ''
                         elif tmp == ' Add this playlist':
@@ -190,8 +192,6 @@ def main():
                             playlist.playlist = tmp.split()[-1]
                         else:
                             pass
-            elif tmp == ' Clear Playlist':
-                client.clear()
             elif tmp == ' Play':
                 if not client.playlistinfo():
                     pass
@@ -202,8 +202,9 @@ def main():
             elif tmp == ' Next':
                 client.next()
             elif '' in tmp:  # TODO: add functions
-                pass
+                status = 2
             else:
+                status = 2
                 if current_dir:
                     current_dir += '/' + tmp[4:]
                 else:

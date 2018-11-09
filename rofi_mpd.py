@@ -115,7 +115,7 @@ class rofi_playlist:
 
     def set_prefix(self):
         if not self.playlist:
-            self.prefix = ' Go back to Main menu\n'
+            self.prefix = ' Go Back to Main menu\n'
         else:
             self.prefix = ' Go Back\n'
             self.prefix += ' Add this playlist\n'
@@ -125,7 +125,7 @@ class rofi_playlist:
             self.indexes = 'Stored playlists----------\n'
             for i in self.client.listplaylists():
                 self.indexes += f'  {i["playlist"]}\n'
-            current_song = 'RSKNG'  # tmp
+            current_song = 'GORNG'  # tmp
             try:
                 current_song = self.client.currentsong()["title"]
             except:
@@ -179,7 +179,7 @@ def main():
                     if not tmp:
                         sys.exit()
                     else:
-                        if tmp == ' Go back to Main menu':
+                        if tmp == ' Go Back to Main menu':
                             break
                         elif tmp == ' Go Back':
                             playlist.playlist = ''
